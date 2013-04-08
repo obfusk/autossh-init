@@ -7,6 +7,6 @@ AUTOSSH_OPTS='-M 0 -o ServerAliveCountMax=3'
 AUTOSSH_OPTS+=' -o ServerAliveInterval=60 -q -N'
 
 # AUTOSSH_TUNNELS=(
-#   '-L 3333:localhost:4444 autossh@remotemachine-one'
-#   '-L 5555:localhost:6666 autossh@remotemachine-two'
+#   '-L 3333:localhost:4444 autossh@host1'
+#   '-L 5555:localhost:6666 autossh@host2'
 # )

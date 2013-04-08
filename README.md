@@ -23,17 +23,21 @@
 ## Usage
 []: {{{1
 
-    $ cp -i autossh.init /etc/init.d/autossh
-    $ update-rc.d autossh defaults
-
-    $ cp -i autossh.default /etc/default/autossh
-    $ vim /etc/default/autossh
+  on local and remote host:
 
     $ adduser --system --group --shell /bin/false \
       --home /nonexistent --no-create-home \
       --disabled-password autossh
 
     $ sudo -H -u autossh ssh-keygen
+
+  on local host:
+
+    $ cp -i autossh.init /etc/init.d/autossh
+    $ update-rc.d autossh defaults
+
+    $ cp -i autossh.default /etc/default/autossh
+    $ vim /etc/default/autossh
 
     $ service autossh start
 
