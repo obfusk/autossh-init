@@ -3,8 +3,8 @@
 
 AUTOSSH_USER=autossh
 
-AUTOSSH_OPTS='-M 0 -o ServerAliveCountMax=3'
-AUTOSSH_OPTS+=' -o ServerAliveInterval=60 -q -N'
+AUTOSSH_OPTS='-M 0 -q -N -f -o ServerAliveCountMax=3'
+AUTOSSH_OPTS+=' -o ServerAliveInterval=60'
 
 # AUTOSSH_TUNNELS=(
 #   '-L 3333:localhost:4444 autossh@host1'

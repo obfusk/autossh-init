@@ -29,10 +29,13 @@ DAEMON=/usr/bin/autossh
 DESC='autossh tunnels'
 NAME=autossh
 SCRIPT=/etc/init.d/$NAME
+RUN=/var/run/$NAME
 
 AUTOSSH_TUNNELS=()
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+[ ! -e "$RUN" ] && { mkdir "$RUN"; chown "$AUTOSSH_USER" "$RUN"; }
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -52,10 +55,10 @@ function do_start()                                             # {{{1
   #   2 if daemon could not be started
 
   local tunnel n=0 pidfile args already=0 failed=0
-  for tunnel in "${AUTOSSH_TUNNELS}"; do
-    echo "[autossh tunnel start] $tunnel"
-    pidfile=/var/run/$NAME.$n.pid; (( ++n ))
+  for tunnel in "${AUTOSSH_TUNNELS[@]}"; do
+    pidfile="$RUN/$NAME.$n.pid"; (( ++n ))
     args=( $AUTOSSH_OPTS $tunnel )
+    echo "[autossh tunnel start] CMD=$DAEMON ${args[@]}"
     touch "$pidfile"; chown "$AUTOSSH_USER" "$pidfile"
     export AUTOSSH_PIDFILE="$pidfile"
     start-stop-daemon -c "$AUTOSSH_USER" --start --quiet \
@@ -70,7 +73,6 @@ function do_start()                                             # {{{1
   return 0
 }                                                               # }}}1
 
-# TODO: don't break if edited configfile before stop
 function do_stop()                                              # {{{1
 {
   # Return:
@@ -79,10 +81,11 @@ function do_stop()                                              # {{{1
   #   2 if daemon could not be stopped
   #   other if a failure occurred
 
-  local tunnel n=0 pidfile r already=0 failed=0 retval=0
-  for tunnel in "${AUTOSSH_TUNNELS}"; do
-    echo "[autossh tunnel stop] $tunnel"
-    pidfile=/var/run/$NAME.$n.pid; (( ++n ))
+  local x pidfile p c r already=0 failed=0 retval=0
+  for x in $( ls "$RUN"/*.pid 2>/dev/null ); do
+    pidfile="$RUN/$x"; p="$( cat "$pidfile" )"
+    c="$( ps -p "$p" -o command= )"
+    echo "[autossh tunnel stop] PID=$p CMD=$c"
     start-stop-daemon -c "$AUTOSSH_USER" --stop --quiet \
       --retry=TERM/30/KILL/5 --pidfile "$pidfile" --name "$NAME"
     r="$?"
@@ -96,6 +99,22 @@ function do_stop()                                              # {{{1
   [ "$failed"  -gt 0 ] && return 2
   [ "$already" -gt 0 ] && return 1
   return 0
+}                                                               # }}}1
+
+function do_status ()                                           # {{{1
+{
+  # Return: 0 if all alive; 1 if some dead.
+  local x pidfile p c dead=0
+  for x in $( ls "$RUN"/*.pid 2>/dev/null ); do
+    pidfile="$RUN/$x"; p="$( cat "$pidfile" )"
+    c="$( ps -p "$p" -o command= )"
+    if [ -n "$x" ]; then
+      echo "[autossh tunnel alive] PID=$p CMD=$c"
+    else
+      echo "[autossh tunnel dead] PID=$p"; (( ++dead ))
+    fi
+  done
+  if [ "$dead" -eq 0 ]; then return 0; else return 1; fi
 }                                                               # }}}1
 
 # --
@@ -118,8 +137,7 @@ case "$1" in
     esac
   ;;
   status)
-    # ???
-    status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+    do_status
   ;;
   restart|force-reload)                                         # {{{1
     log_daemon_msg "Restarting $DESC" "$NAME"
