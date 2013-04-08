@@ -26,7 +26,7 @@
   local & remote:
 
     $ adduser --system --group --shell /bin/false \
-      --home /var/lib/adduser --disabled-password autossh
+      --home /var/lib/autossh --disabled-password autossh
 
   local:
 
