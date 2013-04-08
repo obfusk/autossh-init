@@ -25,6 +25,7 @@
 # script
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DAEMON=/usr/bin/autossh
 DESC='autossh tunnels'
 NAME=autossh
 SCRIPT=/etc/init.d/$NAME
