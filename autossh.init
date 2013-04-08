@@ -55,7 +55,7 @@ function do_start()                                             # {{{1
     echo "[autossh tunnel start] $tunnel"
     pidfile=/var/run/$NAME.$n.pid; (( ++n ))
     args=( $AUTOSSH_OPTS $tunnel )
-    chown "$AUTOSSH_USER" "$pidfile"
+    touch "$pidfile"; chown "$AUTOSSH_USER" "$pidfile"
     export AUTOSSH_PIDFILE="$pidfile"
     start-stop-daemon -c "$AUTOSSH_USER" --start --quiet \
       --pidfile "$pidfile" --exec "$DAEMON" --test > /dev/null \

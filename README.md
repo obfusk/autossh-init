@@ -33,6 +33,8 @@
       --home /nonexistent --no-create-home \
       --disabled-password autossh
 
+    $ sudo -H -u autossh ssh-keygen
+
     $ service autossh start
 
 []: }}}1
