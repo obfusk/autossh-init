@@ -18,18 +18,6 @@
 # Copyright   : Copyright (C) 2013  Felix C. Stegerman
 # Licence     : GPLv2
 #
-# --
-#
-# === Installing ===
-#
-#   $ cp -i autossh.init /etc/init.d/autossh
-#   $ update-rc.d autossh defaults
-#
-#   $ cp -i autossh.default /etc/default/autossh
-#   $ vim /etc/default/autossh
-#
-#   $ service autossh start
-#
 # --                                                            # }}}1
 
 # Do NOT "set -e"
