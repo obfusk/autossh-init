@@ -25,9 +25,13 @@
 # script
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
 DAEMON=/usr/bin/autossh
+RUNNING=/usr/lib/autossh/autossh
+
 DESC='autossh tunnels'
 NAME=autossh
+
 SCRIPT=/etc/init.d/$NAME
 RUN=/var/run/$NAME
 
@@ -35,7 +39,7 @@ AUTOSSH_TUNNELS=()
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
-[ ! -e "$RUN" ] && { mkdir "$RUN"; chown "$AUTOSSH_USER" "$RUN"; }
+[ ! -e "$RUN" ] && { mkdir "$RUN"; chown "$AUTOSSH_USER": "$RUN"; }
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -58,15 +62,16 @@ function do_start()                                             # {{{1
   for tunnel in "${AUTOSSH_TUNNELS[@]}"; do
     pidfile="$RUN/$NAME.$n.pid"; (( ++n ))
     args=( $AUTOSSH_OPTS $tunnel )
-    echo "[autossh tunnel start] CMD=$DAEMON ${args[@]}"
-    touch "$pidfile"; chown "$AUTOSSH_USER" "$pidfile"
+    echo -n "[autossh tunnel start] CMD=$DAEMON ${args[@]} ... "
+    touch "$pidfile"; chown "$AUTOSSH_USER": "$pidfile"
     export AUTOSSH_PIDFILE="$pidfile"
     start-stop-daemon -c "$AUTOSSH_USER" --start --quiet \
-      --pidfile "$pidfile" --exec "$DAEMON" --test > /dev/null \
-      || { (( ++already )); continue; }
+      --pidfile "$pidfile" --exec "$RUNNING" --test > /dev/null \
+      || { (( ++already )); echo 'already running'; continue; }
     start-stop-daemon -c "$AUTOSSH_USER" --start --quiet \
       --pidfile "$pidfile" --exec "$DAEMON" -- "${args[@]}" \
-      || (( ++failed ))
+      || (( ++failed; echo failed; continue ))
+    echo OK
   done
   [ "$failed"  -gt 0 ] && return 2
   [ "$already" -gt 0 ] && return 1
@@ -81,21 +86,21 @@ function do_stop()                                              # {{{1
   #   2 if daemon could not be stopped
   #   other if a failure occurred
 
-  local x pidfile p c r already=0 failed=0 retval=0
-  for x in $( ls "$RUN"/*.pid 2>/dev/null ); do
-    pidfile="$RUN/$x"; p="$( cat "$pidfile" )"
-    c="$( ps -p "$p" -o command= )"
-    echo "[autossh tunnel stop] PID=$p CMD=$c"
+  local pidfile p c r already=0 failed=0 retval=0
+  for pidfile in $( ls -d "$RUN"/*.pid 2>/dev/null ); do
+    p="$( cat "$pidfile" )"; c="$( ps -p "$p" -o command= )"
+    echo -n "[autossh tunnel stop] PID=$p CMD=$c ... "
     start-stop-daemon -c "$AUTOSSH_USER" --stop --quiet \
       --retry=TERM/30/KILL/5 --pidfile "$pidfile" --name "$NAME"
     r="$?"
     case "$r" in
-      1) (( ++already )) ;;
-      2) (( ++failed )) ;;
-      *) retval="$r"; rm -f "$pidfile" ;;
+      0) rm -f "$pidfile"; echo OK ;;
+      1) (( ++already )); echo 'already running' ;;
+      2) (( ++failed )); echo failed ;;
+      *) retval="$r"; rm -f "$pidfile"; echo "failed ($r)" ;;
     esac
   done
-  [ "$retval"  -ne 0 ] && return "$retval"
+  [ "$retval"  -gt 2 ] && return "$retval"
   [ "$failed"  -gt 0 ] && return 2
   [ "$already" -gt 0 ] && return 1
   return 0
@@ -104,12 +109,11 @@ function do_stop()                                              # {{{1
 function do_status ()                                           # {{{1
 {
   # Return: 0 if all alive; 1 if some dead.
-  local x pidfile p c alive=0 dead=0 n=0 m info
-  for x in $( ls "$RUN"/*.pid 2>/dev/null ); do
-    pidfile="$RUN/$x"; p="$( cat "$pidfile" )"
-    c="$( ps -p "$p" -o command= )"
-    if [ -n "$x" ]; then
-      echo "[autossh tunnel alive] PID=$p CMD=$c" (( ++alive ))
+  local pidfile p c alive=0 dead=0 n=0 m info
+  for pidfile in $( ls -d "$RUN"/*.pid 2>/dev/null ); do
+    p="$( cat "$pidfile" )"; c="$( ps -p "$p" -o command= )"
+    if [ -n "$c" ]; then
+      echo "[autossh tunnel alive] PID=$p CMD=$c"; (( ++alive ))
     else
       echo "[autossh tunnel dead] PID=$p"; (( ++dead ))
     fi
