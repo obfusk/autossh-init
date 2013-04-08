@@ -1,0 +1,12 @@
+# Default settings for autossh.  This file is sourced by /bin/bash
+# from /etc/init.d/autossh.
+
+AUTOSSH_USER=autossh
+
+AUTOSSH_OPTS='-M 0 -o ServerAliveCountMax=3'
+AUTOSSH_OPTS+=' -o ServerAliveInterval=60 -q -N'
+
+# AUTOSSH_TUNNELS=(
+#   '-L 3333:localhost:4444 autossh@remotemachine-one'
+#   '-L 5555:localhost:6666 autossh@remotemachine-two'
+# )
