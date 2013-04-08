@@ -104,16 +104,20 @@ function do_stop()                                              # {{{1
 function do_status ()                                           # {{{1
 {
   # Return: 0 if all alive; 1 if some dead.
-  local x pidfile p c dead=0
+  local x pidfile p c alive=0 dead=0 n=0 m info
   for x in $( ls "$RUN"/*.pid 2>/dev/null ); do
     pidfile="$RUN/$x"; p="$( cat "$pidfile" )"
     c="$( ps -p "$p" -o command= )"
     if [ -n "$x" ]; then
-      echo "[autossh tunnel alive] PID=$p CMD=$c"
+      echo "[autossh tunnel alive] PID=$p CMD=$c" (( ++alive ))
     else
       echo "[autossh tunnel dead] PID=$p"; (( ++dead ))
     fi
+    (( ++n ))
   done
+  m="${#AUTOSSH_TUNNELS[@]}"
+  info="alive=$alive dead=$dead total=$n config=$m"
+  echo "[autossh tunnel status] $info"
   if [ "$dead" -eq 0 ]; then return 0; else return 1; fi
 }                                                               # }}}1
 
