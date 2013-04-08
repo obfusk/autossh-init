@@ -23,15 +23,17 @@
 ## Usage
 []: {{{1
 
-  on local and remote host:
+  local & remote:
 
     $ adduser --system --group --shell /bin/false \
-      --home /nonexistent --no-create-home \
-      --disabled-password autossh
+      --home /var/lib/adduser --disabled-password autossh
+
+  local:
 
     $ sudo -H -u autossh ssh-keygen
 
-  on local host:
+    # add ~autossh/.ssh/id_rsa.pub (local)
+    # to ~autossh/.ssh/authorized_keys (remote)
 
     $ cp -i autossh.init /etc/init.d/autossh
     $ update-rc.d autossh defaults
