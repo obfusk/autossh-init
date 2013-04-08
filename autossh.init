@@ -23,7 +23,6 @@
 # === Installing ===
 #
 #   $ cp -i autossh.init /etc/init.d/autossh
-#   $ chmod +x /etc/init.d/autossh
 #   $ update-rc.d autossh defaults
 #
 #   $ cp -i autossh.default /etc/default/autossh
