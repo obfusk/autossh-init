@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          autossh
 # Required-Start:    $remote_fs $syslog
@@ -13,7 +13,7 @@
 #
 # File        : autossh.init
 # Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-# Date        : 2013-04-08
+# Date        : 2013-04-09
 #
 # Copyright   : Copyright (C) 2013  Felix C. Stegerman
 # Licence     : GPLv2
@@ -35,9 +35,17 @@ NAME=autossh
 SCRIPT=/etc/init.d/$NAME
 RUN=/var/run/$NAME
 
+# --
+
+AUTOSSH_OPTS=''
 AUTOSSH_TUNNELS=()
 
+function autossh_opts () { AUTOSSH_OPTS="$@"; }
+function tunnel () { local x="$@"; AUTOSSH_TUNNELS+=( "$x" ); }
+
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# --
 
 [ ! -e "$RUN" ] && { mkdir "$RUN"; chown "$AUTOSSH_USER": "$RUN"; }
 
@@ -48,6 +56,8 @@ AUTOSSH_TUNNELS=()
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
 # and status_of_proc is working.
 . /lib/lsb/init-functions
+
+[ -n "$AUTOSSH_INIT_VERBOSE" ] && VERBOSE="$AUTOSSH_INIT_VERBOSE"
 
 # --
 
@@ -127,7 +137,7 @@ function do_status ()                                           # {{{1
 
 # --
 
-case "$1" in
+case "$1" in                                                    # {{{1
   start)
     [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
     do_start
@@ -147,7 +157,7 @@ case "$1" in
   status)
     do_status
   ;;
-  restart|force-reload)                                         # {{{1
+  restart|force-reload)                                         # {{{2
     log_daemon_msg "Restarting $DESC" "$NAME"
     do_stop
     case "$?" in
@@ -161,12 +171,12 @@ case "$1" in
       ;;
       *) log_end_msg 1 ;; # Failed to stop
     esac
-  ;;                                                            # }}}1
+  ;;                                                            # }}}2
   *)
     echo "Usage: $SCRIPT {start|stop|status|restart|force-reload}" >&2
     exit 3
   ;;
-esac
+esac                                                            # }}}1
 
 :
 

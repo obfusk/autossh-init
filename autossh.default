@@ -2,11 +2,8 @@
 # from /etc/init.d/autossh.
 
 AUTOSSH_USER=autossh
+autossh_opts -M 0 -q -N -f -o ServerAliveCountMax=3 \
+                           -o ServerAliveInterval=60
 
-AUTOSSH_OPTS='-M 0 -q -N -f -o ServerAliveCountMax=3'
-AUTOSSH_OPTS+=' -o ServerAliveInterval=60'
-
-# AUTOSSH_TUNNELS=(
-#   '-L 3333:localhost:4444 autossh@host1'
-#   '-L 5555:localhost:6666 autossh@host2'
-# )
+# tunnel -L 3333:localhost:4444 -L 4444:localhost:5555  autossh@host1
+# tunnel -L 5555:localhost:6666                         autossh@host2

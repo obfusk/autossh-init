@@ -2,7 +2,7 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2013-04-08
+    Date        : 2013-04-09
 
     Copyright   : Copyright (C) 2013  Felix C. Stegerman
     Version     : 0.0.1
@@ -31,10 +31,18 @@
 
   local:
 
-    $ sudo -H -u autossh ssh-keygen
+    autossh$ ssh-keygen
+    # <<PUBKEY>> below is the contents of ~/.ssh/id_rsa.pub here
 
-    # add ~autossh/.ssh/id_rsa.pub (local)
-    # to ~autossh/.ssh/authorized_keys (remote)
+  remote:
+
+    autossh$ vim ~/.ssh/authorized_keys
+    # on a single line, add:
+    #   command="/bin/false",no-agent-forwarding,no-pty,
+    #   no-X11-forwarding,permitopen="host1:port1",
+    #   permitopen="host2:port2" <<PUBKEY>>
+
+  local:
 
     $ cp -i autossh.init /etc/init.d/autossh
     $ update-rc.d autossh defaults
