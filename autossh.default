@@ -1,5 +1,5 @@
-# Default settings for autossh.  This file is sourced by /bin/bash
-# from /etc/init.d/autossh.
+# Settings for autossh.  This file is sourced by /bin/bash from
+# /etc/init.d/autossh.
 
 AUTOSSH_USER=autossh
 autossh_opts -M 0 -q -N -f -o ServerAliveCountMax=3 \
