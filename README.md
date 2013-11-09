@@ -2,17 +2,12 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2013-04-09
+    Date        : 2013-11-09
 
     Copyright   : Copyright (C) 2013  Felix C. Stegerman
     Version     : 0.0.1
 
 []: }}}1
-
-## TODO
-
-  * test!
-  * improve output
 
 ## Description
 []: {{{1
@@ -50,9 +45,18 @@
     $ cp -i autossh.default /etc/default/autossh
     $ vim /etc/default/autossh
 
+    autossh$ ssh autossh@remote FAIL  # confirm fingerprint
+    # alternatively -- and less securely! -- you can disable
+    # StrictHostKeyChecking in the autossh_opts
+
     $ service autossh start
 
 []: }}}1
+
+## TODO
+
+  * improve output?
+  * tests?
 
 ## License
 []: {{{1
